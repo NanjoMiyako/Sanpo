@@ -1,0 +1,38 @@
+<!DOCTYPE HTML>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="initial-scale=1.0, user-scalable=yes">
+<title>GoogleMapAPIテスト</title>
+<link rel="stylesheet" href="style2.css">
+</head>
+<body>
+<script src="jquery-3.3.1.min.js"></script>
+<div class="adbox1">
+</div>
+<div>
+GoogleAPIキー <input type="text" name="GoogleApiKeyTextBox" id="GoogleApiKey1">
+<button type="button" name="SetGoogleApiKey" value="SetGoogleApiKey" onclick="SetGoogleApiKey()" style="margin-left:10px; margin-top:10px;">GoogleAPIキーセット</button>
+</div>
+
+
+<div  id="map" style="margin-top:10px; width:400px; height:350px; border:1px solid;">
+</div>
+<div id="modeDiv">
+モード:<span id="modeSpan"></span><br>
+<button id="modeChange" style="font-size:1.4em; font-weight:bold; padding:10px 30px;" onclick="modeChange()">モード変更</button>
+<br>
+現在の仮想可能移動距離:<span id="kanoIdoKyoriSpan"></span><br>
+<button id="kasoIdo" style="font-size:1.4em; font-weight:bold; padding:10px 30px;" onclick="kasoIdo()">マーカ位置に仮想移動</button>
+<br>
+</div>
+
+<div class="adbox1">
+</div>
+
+<div id="InitScriptTag"></div>
+<script type="text/javascript" src="sanpoJS.js" async defer>
+</script>
+
+</body>
+</html>

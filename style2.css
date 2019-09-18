@@ -1,0 +1,14 @@
+div{
+ /* ボックス表示用 */
+ /* border: solid 3px red; */
+ border: none;
+ box-sizing: border-box;
+
+ }
+ 
+.adbox1{
+ width: 950px;
+ height:300px;
+ border-color: black;
+}
+ 
