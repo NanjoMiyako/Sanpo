@@ -27,6 +27,38 @@ GoogleAPIキー <input type="text" name="GoogleApiKeyTextBox" id="GoogleApiKey1"
 <br>
 </div>
 
+<hr>
+<div id="fileImport">
+ファイルのインポート<br>
+<input type="file" id="importFile_file"><br>
+緯度経度ランドスケープデータ:<span id="LandScapeDataImportFlgSpan"></span><br>
+マイ散歩データ:<span id="MySanpoDataImportFlgSpan"></span><br>
+<button type="button" id="LandScapeDataImportButton" style="margin-top:10px;" onclick="ImportLandScapeData()">
+緯度経度ランドスケープリストデータをインポート
+</button><br>
+<button type="button" id="MySanpoDataImportButton" style="margin-top:10px;" onclick="ImportMySanpoData()">
+マイ散歩データをインポート
+</button><br>
+<button type="button" id="MySanpoDataExportButton" style="margin-top:10px;" onclick="ExportMySanpoData()">
+マイ散歩データをエクスポート
+</button><br>
+
+
+</div>
+
+<hr>
+<div id="SyuhenGazoDiv">
+周辺画像<br>
+<span id="SyuhenGazoSpan"></span><br>
+<img id="SyuhenGazoImg" border="1" src="" width="200" height="200" alt="Image1" title="Image1"><br>
+</div>
+
+<hr>
+<div id="SyutokuZumiImg">
+取得済み画像<br>
+<span id="SyutokuZumiImgSpan"></span>
+</div>
+
 <div class="adbox1">
 </div>
 

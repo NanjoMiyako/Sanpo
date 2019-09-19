@@ -8,7 +8,7 @@ var g_MapOpts;
 var g_Map;
 var CurrentLat=null;
 var CurrentLng=null;
-var distOfSanpo=50.0;
+var distOfSanpo= 500000.0;
 var g_KasoLat=null;
 var g_KasoLng=null;
 var PrevLat;
@@ -17,15 +17,30 @@ var IntervalId;
 var g_CurrentCircle;
 var g_KasoIdoCircle;
 var g_GazoSearchCircle;
+var g_LandScapeCircleList = [];
+
 var g_IdoKohoMarker;
 var g_IdoKohoLat;
 var g_IdoKohoLng;
 
-var IntervalSecond = 20000;
+var g_LandScapeList;
+var g_MySanpoData;
+
+var g_LandScapeDataImportFlg = false;
+var g_MySanpoDataImportFlg = false;
+
+var IntervalSecond = 60000;
 var GazoSearchRadius = 30.0;
 
 //グーグルマップのMarkerオブジェクトのマップ
 var MarkerMap = new Array();
+
+var g_reader = new FileReader();
+var g_File;
+var fileElem = document.getElementById("importFile_file");
+fileElem.onchange = function(event) {
+    g_File = event.target.files[0];
+};
 
 function SetGoogleApiKey(){
 	GoogleAPIKey = document.getElementById("GoogleApiKey1").value;
@@ -59,6 +74,7 @@ function initMap() {
 	MapMode =  MODE_SANPO;
 	drawMode();
 	
+	//仮想移動候補のマークを初期位置にセット
 	g_KasoLat = 34.683;
 	g_KasoLng = 138.044;
 	InitKasoKaouIdoKyoriCircle(g_KasoLat,g_KasoLng);
@@ -72,7 +88,7 @@ function initMap() {
 	UpdateSanpoKyori()
 	}, IntervalSecond);
 	
-	//マップをクリックしたときの処理
+	//仮想移動候補サークルをクリックしたときの処理
 	g_KasoIdoCircle.addListener('click', function(e){
 		if(MapMode == MODE_KASO_IDO){
 			g_IdoKohoLat = e.latLng.lat();
@@ -89,6 +105,7 @@ function initMap() {
 		}
 	});
 	
+	//画像検索範囲サークルをクリックしたときの処理
 	g_GazoSearchCircle.addListener('click', function(e){
 		if(MapMode == MODE_KASO_IDO){
 			g_IdoKohoLat = e.latLng.lat();
@@ -104,6 +121,9 @@ function initMap() {
 			
 		}
 	});
+	
+
+	InitMySanpoData()
 	
 	
 }
@@ -301,6 +321,10 @@ function drawGazoSearchCircle(centerLat, centerLng){
 	g_GazoSearchCircle.setCenter(new google.maps.LatLng(centerLat, centerLng));
 }
 
+function drawIdoKohoMarker(centerLat, centerLng){
+	g_IdoKohoMarker.setPosition(centerLat, centerLng);
+}
+
 function InitKasoKaouIdoKyoriCircle(centerLat, centerLng){
     var circleOptions = { 
         center: new google.maps.LatLng(centerLat, centerLng),  // 中心点(google.maps.LatLng)
@@ -401,4 +425,210 @@ function drawStar(LeftTopLat, LeftTopLng, width1, height1){
 	marker.setMap(g_Map);
 	   
    
+}
+
+function ImportLandScapeData(){
+      var fileRef = document.getElementById('importFile_file');
+	  var content;
+	  var landScape1;
+	  
+      if (1 <= fileRef.files.length) {
+			var reader = new FileReader();
+			//ファイル読み出し完了後の処理を記述
+			reader.onload = function (theFile) {
+				var content = theFile.target.result;
+				g_LandScapeList = JSON.parse(content);
+			
+				for(var i=0; i<g_LandScapeList.length; i++){
+					landScape1 = g_LandScapeList[i];
+					g_LandScapeMarker = new google.maps.Marker({ // マーカーの追加
+						icon: {
+							fillColor: "#90877C",                //塗り潰し色
+							fillOpacity: 0.8,                    //塗り潰し透過率
+							path: google.maps.SymbolPath.CIRCLE, //円を指定
+							scale: 8,                           //円のサイズ
+							strokeColor: "#90877C",              //枠の色
+							strokeWeight: 1.0                    //枠の透過率
+						},
+						position: new google.maps.LatLng(landScape1.latitude, landScape1.longitude), // マーカーを立てる位置を指定
+						visible: true
+					   });
+					
+						//画像検索範囲サークルをクリックしたときの処理
+						g_LandScapeMarker.addListener('click', function(e){
+							landScape2 = GetCorrenspondLandScape(this.position.lat(), this.position.lng());
+							
+							dist1 = distance(this.position.lat(), this.position.lng(), g_KasoLat, g_KasoLng);
+							
+							spanElem = document.getElementById("SyuhenGazoSpan");
+							imgElem = document.getElementById("SyuhenGazoImg");
+							
+							if(dist1 <= GazoSearchRadius){
+							
+								spanElem.innerHTML = "画像を発見!";
+								imgElem.src = landScape2.URL;
+								
+								if(!g_MySanpoData.urlList.includes(landScape2.URL)){
+									g_MySanpoData.urlList.push(landScape2.URL);
+								}
+								
+								
+							}else{
+								spanElem.innerHTML = "";
+								imgElem.src = "";
+							}
+						});
+					
+					
+					   
+					g_LandScapeMarker.setMap(g_Map);
+					g_LandScapeCircleList.push(g_LandScapeMarker);
+				}
+				    
+				g_LandScapeDataImportFlg = true;
+				DisplayDataImportTab();
+			}
+
+		//ファイル読み出し
+        reader.readAsText(fileRef.files[0], "utf-8");
+
+      }
+
+}
+
+function GetCorrenspondLandScape(latitude1, longitude1){
+	var dist1 = distance(latitude1, longitude1, g_LandScapeList[0].latitude, g_LandScapeList[0].longitude);
+	var targetLandScape = g_LandScapeList[0];
+	var dist2;
+	
+	for(var i=0; i<g_LandScapeList.length; i++){
+		landScape1 = g_LandScapeList[i];
+		dist2 = distance(latitude1, longitude1, landScape1.latitude, landScape1.longitude);
+		if(dist1 > dist2){
+			targetLandScape = landScape1;
+		} 
+	}
+	return targetLandScape;
+}
+
+function DisplayDataImportTab(){
+
+	var spanElem1 = document.getElementById("LandScapeDataImportFlgSpan");
+	var spanElem2 = document.getElementById("MySanpoDataImportFlgSpan");
+	
+	if(g_LandScapeDataImportFlg == true){
+		spanElem1.innerHTML = "インポート済み";
+	}else{
+		spanElem1.innerHTML = "インポート未完了";
+	}
+
+
+	if(g_MySanpoDataImportFlg == true){
+		spanElem2.innerHTML = "インポート済み";
+	}else{
+		spanElem2.innerHTML = "インポート未完了";
+	}
+}
+
+function ImportMySanpoData(){
+      var fileRef = document.getElementById('importFile_file');
+	  var content;
+	  
+	if (1 <= fileRef.files.length) {
+		var reader = new FileReader();
+		//ファイル読み出し完了後の処理を記述
+		reader.onload = function (theFile) {
+			var content = theFile.target.result;
+			g_MySanpoData = JSON.parse(content);
+			
+			drawKasoKanouIdoKyori(g_MySanpoData.kasoLat, g_MySanpoData.kasoLng, distOfSanpo);
+			drawIdoKohoMarker(g_MySanpoData.idoKohoLat, g_MySanpoData.idoKohoLng);
+			
+			g_MySanpoDataImportFlg = true;
+			DisplayDataImportTab();
+		}
+			
+		//ファイル読み出し
+        reader.readAsText(fileRef.files[0], "utf-8");
+	}
+}
+
+
+function ExportMySanpoData(){
+	g_MySanpoData.distOfSanpo = distOfSanpo;
+	g_MySanpoData.idoKohoLat = g_IdoKohoLat;
+	g_MySanpoData.idoKohoLng = g_IdoKohoLng;
+	g_MySanpoData.kasoLat = g_KasoLat;
+	g_MySanpoData.kasoLng = g_KasoLng;
+
+	//ファイルを作ってダウンロードします。
+	var resultJson = JSON.stringify(g_MySanpoData);
+	var downLoadLink = document.createElement("a");
+	downLoadLink.download = "MySanpoData.json";
+	downLoadLink.href = URL.createObjectURL(new Blob([resultJson], {type: "text.plain;charset=utf-8;"}));
+	downLoadLink.dataset.downloadurl = ["text/plain", downLoadLink.download, downLoadLink.href].join(":");
+	downLoadLink.click();
+}
+
+function InitMySanpoData(){
+
+	g_MySanpoData = new MySanpoData([], distOfSanpo, g_IdoKohoLat, g_IdoKohoLng, g_KasoLat,  g_KasoLng)
+
+}
+
+
+function DisplayGetGazoURLList(){
+	var spanElem = document.getElementById("SyutokuZumiImgSpan");
+	
+	//取得済み画像のspanをクリア
+	while(spanElem.firstChild != null){ spanElem.removeChild(selboxElem.firstChild); }
+	
+	var spanElem2 = document.createElement("span");
+	spanElem2.innerHTML = "取得件数:"
+	spanElem2.innerHTML += g_MySanpoData.urlList.length;
+	spanElem2.innerHTML += "　/　"
+	spanElem2.innerHTML += g_LandScapeList.length;
+	
+	var brElem = document.createElement("br");
+	
+	spanElem.appendChild(spanElem2);
+	spanElem.appendChild(brElem);	
+	
+	for(var i=0; i<g_MySanpoData.urlList.length; i++){
+		var title = GetGazoTitleFromURL(g_MySanpoData.urlList[i]);
+		
+		var linkElem = document.createElement("a");
+		linkElem.href = g_MySanpoData.urlList[i];
+		linkElem.innerHTML = title;
+		linkElem.target = "_blank";
+		
+		brElem = document.createElement("br");
+		
+		spanElem.appendChild(linkElem);
+		spanElem.appendChild(brElem);
+		
+	}
+	
+	
+}
+function GetGazoTitleFromURL(url1){
+	
+	for(var i=0; i<g_LandScapeList.length; i++){
+		if(url1 == g_LandScapeList[i].URL){
+			return g_LandScapeList[i].title;
+		}
+	}
+	
+	return "";
+}
+
+
+//マイ散歩データのコンストラクタ
+function MySanpoData(urlList, distOfSanpo, idoKohoLat, idoKohoLng, kasoLat,  kasoLng){
+	this.urlList = urlList;
+	this.distOfSanpo = distOfSanpo;
+	this.idoKohoLat = idoKohoLat;
+	this.idoKohoLng = idoKohoLng;
+	this.kasoLat = kasoLat;
+	this.kasoLng = kasoLng;
 }
