@@ -465,6 +465,7 @@ function ImportLandScapeData(){
 						//画像検索範囲サークルをクリックしたときの処理
 						g_LandScapeMarker.addListener('click', function(e){
 							landScape2 = GetCorrenspondLandScape(this.position.lat(), this.position.lng());
+							var latlng2 = new google.maps.LatLng(this.position.lat(), this.position.lng());
 							
 							dist1 = distance(this.position.lat(), this.position.lng(), g_KasoLat, g_KasoLng);
 							
@@ -473,6 +474,7 @@ function ImportLandScapeData(){
 							spanElem = document.getElementById("SyuhenGazoSpan");
 							imgElem = document.getElementById("SyuhenGazoImg");
 							
+							/*
 							var url1 = landScape2.URL;
 							var img = new Image();
 							img.crossOrigin = 'anonymous';
@@ -481,8 +483,34 @@ function ImportLandScapeData(){
 								var a=1;
 								a++;
 							}
+							*/
 							
 							if(dist1 <= GazoSearchRadius){
+								var infoWindowStr = "";
+								
+								infoWindowStr += "画像を発見!<br>";
+								infoWindowStr += "<a href='";
+								infoWindowStr += landScape2.URL;
+								infoWindowStr += "' target=";
+								infoWindowStr += "'_blank'>";
+								infoWindowStr += landScape2.title;
+								infoWindowStr += "</a>";
+								infoWindowStr += "<br>";
+								/*
+								infoWindowStr += "<img = src='";
+								infoWindowStr += landScape2.URL;
+								infoWindowStr += "' /><br>"
+								*/
+								
+								var iwopts = {
+									content:infoWindowStr,
+									position: latlng2
+								}
+								
+								var infowindow = new google.maps.InfoWindow(iwopts);
+								infowindow.open(g_Map);
+								
+								
 								/*
 								var oReq = new XMLHttpRequest();
 								oReq.addEventListener("load", reqListener);
