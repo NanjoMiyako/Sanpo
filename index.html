@@ -75,7 +75,7 @@ var g_MapOpts;
 var g_Map;
 var CurrentLat=null;
 var CurrentLng=null;
-var distOfSanpo= 500000.0;
+var distOfSanpo= 10.0;
 var g_KasoLat=null;
 var g_KasoLng=null;
 var PrevLat;
@@ -90,7 +90,7 @@ var g_IdoKohoMarker;
 var g_IdoKohoLat;
 var g_IdoKohoLng;
 
-var g_LandScapeList;
+var g_LandScapeList=[];
 var g_MySanpoData;
 
 var g_LandScapeDataImportFlg = false;
@@ -142,8 +142,9 @@ function initMap() {
 	drawMode();
 	
 	//仮想移動候補のマークを初期位置にセット
-	g_KasoLat = 34.683;
-	g_KasoLng = 138.044;
+	g_KasoLat = 34.7693884;
+	g_KasoLng = 138.0123801;	
+	//34.7693884,138.0123801,
 	InitKasoKaouIdoKyoriCircle(g_KasoLat,g_KasoLng);
 	InitGazoSearchCircle(g_KasoLat,g_KasoLng);
 	
@@ -190,7 +191,8 @@ function initMap() {
 	});
 	
 
-	InitMySanpoData()
+	InitMySanpoData();
+	DisplayGetGazoURLList();
 	
 	
 }
@@ -591,6 +593,7 @@ function ImportLandScapeData(){
 								
 								if(!g_MySanpoData.urlList.includes(landScape2.URL)){
 									g_MySanpoData.urlList.push(landScape2.URL);
+									DisplayGetGazoURLList();
 								}
 								
 								
@@ -627,6 +630,7 @@ function GetCorrenspondLandScape(latitude1, longitude1){
 		dist2 = distance(latitude1, longitude1, landScape1.latitude, landScape1.longitude);
 		if(dist1 > dist2){
 			targetLandScape = landScape1;
+			dist1 = dist2;
 		} 
 	}
 	return targetLandScape;
@@ -662,8 +666,16 @@ function ImportMySanpoData(){
 			var content = theFile.target.result;
 			g_MySanpoData = JSON.parse(content);
 			
+			g_IdoKohoLat = g_MySanpoData.idoKohoLat;
+			g_IdoKohoLng = g_MySanpoData.idoKohoLng;
+			g_KasoLat = g_MySanpoData.kasoLat;
+			g_KasoLng = g_MySanpoData.kasoLng;
+			distOfSanpo = g_MySanpoData.distOfSanpo;
+			
+			
 			drawKasoKanouIdoKyori(g_MySanpoData.kasoLat, g_MySanpoData.kasoLng, distOfSanpo);
 			drawIdoKohoMarker(g_MySanpoData.idoKohoLat, g_MySanpoData.idoKohoLng);
+			DisplayGetGazoURLList();
 			
 			g_MySanpoDataImportFlg = true;
 			DisplayDataImportTab();
@@ -698,11 +710,12 @@ function InitMySanpoData(){
 }
 
 
+
 function DisplayGetGazoURLList(){
 	var spanElem = document.getElementById("SyutokuZumiImgSpan");
 	
 	//取得済み画像のspanをクリア
-	while(spanElem.firstChild != null){ spanElem.removeChild(selboxElem.firstChild); }
+	while(spanElem.firstChild != null){ spanElem.removeChild(spanElem.firstChild); }
 	
 	var spanElem2 = document.createElement("span");
 	spanElem2.innerHTML = "取得件数:"
