@@ -29,7 +29,7 @@ var g_MySanpoData;
 var g_LandScapeDataImportFlg = false;
 var g_MySanpoDataImportFlg = false;
 
-var IntervalSecond = 60000;
+var IntervalSecond = 20000;
 var GazoSearchRadius = 30.0;
 
 //グーグルマップのMarkerオブジェクトのマップ

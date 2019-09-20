@@ -96,7 +96,7 @@ var g_MySanpoData;
 var g_LandScapeDataImportFlg = false;
 var g_MySanpoDataImportFlg = false;
 
-var IntervalSecond = 60000;
+var IntervalSecond = 20000;
 var GazoSearchRadius = 30.0;
 
 //グーグルマップのMarkerオブジェクトのマップ
@@ -165,8 +165,6 @@ function initMap() {
 			var retVal = IsInIdoKanoHankei(g_IdoKohoLat, g_IdoKohoLng);
 			if(retVal == true){
 				g_IdoKohoMarker.setPosition(new google.maps.LatLng(g_IdoKohoLat, g_IdoKohoLng));
-				var a=1.0
-				a++;
 				
 			}
 			
@@ -182,8 +180,6 @@ function initMap() {
 			var retVal = IsInIdoKanoHankei(g_IdoKohoLat, g_IdoKohoLng);
 			if(retVal == true){
 				g_IdoKohoMarker.setPosition(new google.maps.LatLng(g_IdoKohoLat, g_IdoKohoLng));
-				var a=1.0
-				a++;
 				
 			}
 			
@@ -261,8 +257,8 @@ function UpdateSanpoKyori(){
 				drawKasoKanouIdoKyori(g_KasoLat, g_KasoLng, distOfSanpo)
 				drawGazoSearchCircle(g_KasoLat, g_KasoLng);
 				
-				//alert(CurrentLat);
-				//alert(CurrentLng);
+				alert(CurrentLat);
+				alert(CurrentLng);
 				
 				
 				g_Map.setCenter(new google.maps.LatLng(CurrentLat, CurrentLng));
