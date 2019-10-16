@@ -198,7 +198,7 @@ function UpdateSanpoKyori(){
 				//alert(CurrentLng);
 				
 				
-				g_Map.setCenter(new google.maps.LatLng(CurrentLat, CurrentLng));
+				//g_Map.setCenter(new google.maps.LatLng(CurrentLat, CurrentLng));
 				
 				
 			},
@@ -521,8 +521,8 @@ function ImportLandScapeData(){
 								*/
 							
 								spanElem.innerHTML = "画像を発見!";
-								imgElem.src = landScape2.URL;
-
+								//imgElem.src = landScape2.URL;
+								imgElem.src = "https://raw.githubusercontent.com/NanjoMiyako/Sanpo/master/sampleData/gazo2/19.jpg";
 								
 								if(!g_MySanpoData.urlList.includes(landScape2.URL)){
 									g_MySanpoData.urlList.push(landScape2.URL);
@@ -551,6 +551,23 @@ function ImportLandScapeData(){
 
       }
 
+}
+
+function hosuCharge(){
+	var textElem = document.getElementById("hosuText");
+	var hosu = textElem.value;
+	
+	if(isNaN(hosu)){
+		alert("歩数には数値を入力してください")
+		return;
+	}
+	hosu = parseInt(hosu)
+	//歩数の目安の身長として120cmを想定,(単位:m)
+	hokouKyori = 120 * 0.45 * hosu / 100;
+	distOfSanpo += hokouKyori;
+	UpdateSanpoKyori()
+	
+	textElem.value = ""
 }
 
 function GetCorrenspondLandScape(latitude1, longitude1){

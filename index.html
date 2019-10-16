@@ -24,7 +24,11 @@ GoogleAPIキー <input type="text" name="GoogleApiKeyTextBox" id="GoogleApiKey1"
 <br>
 現在の仮想可能移動距離:<span id="kanoIdoKyoriSpan"></span><br>
 <button id="kasoIdo" style="font-size:1.4em; font-weight:bold; padding:10px 30px;" onclick="kasoIdo()">マーカ位置に仮想移動</button>
-<br>
+<br><br>
+歩数:
+<input type="text" id="hosuText">歩<br>
+<button id="hosuCharge"style="font-size:1.4em; font-weight:bold; padding:10px 30px; margin-top:10px" onclick="hosuCharge()">歩数チャージ</button>
+<br><br>
 </div>
 
 <hr>
@@ -165,6 +169,8 @@ function initMap() {
 			var retVal = IsInIdoKanoHankei(g_IdoKohoLat, g_IdoKohoLng);
 			if(retVal == true){
 				g_IdoKohoMarker.setPosition(new google.maps.LatLng(g_IdoKohoLat, g_IdoKohoLng));
+				var a=1.0
+				a++;
 				
 			}
 			
@@ -180,6 +186,8 @@ function initMap() {
 			var retVal = IsInIdoKanoHankei(g_IdoKohoLat, g_IdoKohoLng);
 			if(retVal == true){
 				g_IdoKohoMarker.setPosition(new google.maps.LatLng(g_IdoKohoLat, g_IdoKohoLng));
+				var a=1.0
+				a++;
 				
 			}
 			
@@ -257,11 +265,11 @@ function UpdateSanpoKyori(){
 				drawKasoKanouIdoKyori(g_KasoLat, g_KasoLng, distOfSanpo)
 				drawGazoSearchCircle(g_KasoLat, g_KasoLng);
 				
-				alert(CurrentLat);
-				alert(CurrentLng);
+				//alert(CurrentLat);
+				//alert(CurrentLng);
 				
 				
-				g_Map.setCenter(new google.maps.LatLng(CurrentLat, CurrentLng));
+				//g_Map.setCenter(new google.maps.LatLng(CurrentLat, CurrentLng));
 				
 				
 			},
@@ -584,8 +592,8 @@ function ImportLandScapeData(){
 								*/
 							
 								spanElem.innerHTML = "画像を発見!";
-								imgElem.src = landScape2.URL;
-
+								//imgElem.src = landScape2.URL;
+								imgElem.src = "https://raw.githubusercontent.com/NanjoMiyako/Sanpo/master/sampleData/gazo2/19.jpg";
 								
 								if(!g_MySanpoData.urlList.includes(landScape2.URL)){
 									g_MySanpoData.urlList.push(landScape2.URL);
@@ -614,6 +622,23 @@ function ImportLandScapeData(){
 
       }
 
+}
+
+function hosuCharge(){
+	var textElem = document.getElementById("hosuText");
+	var hosu = textElem.value;
+	
+	if(isNaN(hosu)){
+		alert("歩数には数値を入力してください")
+		return;
+	}
+	hosu = parseInt(hosu)
+	//歩数の目安の身長として120cmを想定,(単位:m)
+	hokouKyori = 120 * 0.45 * hosu / 100;
+	distOfSanpo += hokouKyori;
+	UpdateSanpoKyori()
+	
+	textElem.value = ""
 }
 
 function GetCorrenspondLandScape(latitude1, longitude1){
